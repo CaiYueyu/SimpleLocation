@@ -1,4 +1,4 @@
-package com.mjzuo.simplelocation;
+package com.mjzuo.location;
 
 import org.junit.Test;
 
