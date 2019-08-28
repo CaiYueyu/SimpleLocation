@@ -26,6 +26,7 @@ public class LocationTaskActivity extends AppCompatActivity implements EasyPermi
     String[] perms = {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.INTERNET
     };
 
     /** 获取经纬度*/
@@ -56,7 +57,7 @@ public class LocationTaskActivity extends AppCompatActivity implements EasyPermi
         reGeManager.addReGeListener(new IReGeManager.IReGeListener() {
             @Override
             public void onSuccess(Latlng latlng) {
-                Log.e(LOG_TAG,"onSuccess:" + latlng);
+                Log.e(LOG_TAG,"reGeManager onSuccess:" + latlng);
                 tvSimpleAd.setText("country:"+ latlng.getCountry()
                         + "\n,city:" + latlng.getCity()
                         + "\n,sublocality:" + latlng.getSublocality()
@@ -74,7 +75,7 @@ public class LocationTaskActivity extends AppCompatActivity implements EasyPermi
         siLoManager.start(new IManager.ISiLoResponseListener() {
             @Override
             public void onSuccess(Latlng latlng) {
-                Log.e(LOG_TAG,"onSuccess:" + latlng);
+                Log.e(LOG_TAG,"siLoManager onSuccess:" + latlng);
                 tvSimpleLo.setText("latlng:" + latlng.getLatitude()
                         + "\n,long:" + latlng.getLongitude()
                         + "\n,provider:" + latlng.getProvider());
@@ -100,11 +101,19 @@ public class LocationTaskActivity extends AppCompatActivity implements EasyPermi
 
     @Override
     public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-
+        if(requestCode == 0 && siLoManager != null)
+            siLoManager.reStart();
     }
 
     @Override
     public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // Forward results to EasyPermissions
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 }

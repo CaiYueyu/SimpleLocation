@@ -10,6 +10,11 @@ public interface IManager {
     void start(ISiLoResponseListener listener);
 
     /**
+     * 重新请求
+     */
+    void reStart();
+
+    /**
      * 结束
      */
     void stop();
