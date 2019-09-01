@@ -9,10 +9,11 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.mjzuo.location.bean.Latlng;
-import com.mjzuo.location.manager.IManager;
-import com.mjzuo.location.manager.IReGeManager;
-import com.mjzuo.location.manager.ReverseGeocodingManager;
-import com.mjzuo.location.manager.SimpleLocationManager;
+import com.mjzuo.location.constant.Constant;
+import com.mjzuo.location.IManager;
+import com.mjzuo.location.location.IReGe;
+import com.mjzuo.location.ReverseGeocodingManager;
+import com.mjzuo.location.SimpleLocationManager;
 
 import java.util.List;
 
@@ -52,11 +53,14 @@ public class LocationTaskActivity extends AppCompatActivity implements EasyPermi
                     , perms);
         }
 
-        reGeManager = new ReverseGeocodingManager(this);
-        reGeManager.start();
-        reGeManager.addReGeListener(new IReGeManager.IReGeListener() {
+        ReverseGeocodingManager.ReGeOption reGeOption = new ReverseGeocodingManager.ReGeOption()
+                .setReGeType(Constant.BAIDU_API)// 百度api返地理编码
+                .setSn(true)// sn 签名校验方式
+                .setIslog(true);// 打印log
+        reGeManager = new ReverseGeocodingManager(this, reGeOption);
+        reGeManager.addReGeListener(new IReGe.IReGeListener() {
             @Override
-            public void onSuccess(Latlng latlng) {
+            public void onSuccess(int state, Latlng latlng) {
                 Log.e(LOG_TAG,"reGeManager onSuccess:" + latlng);
                 tvSimpleAd.setText("country:"+ latlng.getCountry()
                         + "\n,city:" + latlng.getCity()
@@ -66,12 +70,15 @@ public class LocationTaskActivity extends AppCompatActivity implements EasyPermi
             }
 
             @Override
-            public void onFail(String error) {
+            public void onFail(int errorCode, String error) {
                 Log.e(LOG_TAG,"error:" + error);
+                tvSimpleAd.setText("errorCode:"+errorCode+", error:" + error);
             }
         });
 
-        siLoManager = new SimpleLocationManager(this);
+        SimpleLocationManager.SiLoOption option = new SimpleLocationManager.SiLoOption()
+                .setGpsFirst(false);// network优先
+        siLoManager = new SimpleLocationManager(this, option);
         siLoManager.start(new IManager.ISiLoResponseListener() {
             @Override
             public void onSuccess(Latlng latlng) {
@@ -85,6 +92,7 @@ public class LocationTaskActivity extends AppCompatActivity implements EasyPermi
             @Override
             public void onFail(String msg) {
                 Log.e(LOG_TAG,"error:" + msg);
+                tvSimpleAd.setText("error:" + msg);
             }
         });
     }

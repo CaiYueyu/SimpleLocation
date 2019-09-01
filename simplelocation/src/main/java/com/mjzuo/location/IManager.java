@@ -1,4 +1,4 @@
-package com.mjzuo.location.manager;
+package com.mjzuo.location;
 
 import com.mjzuo.location.bean.Latlng;
 

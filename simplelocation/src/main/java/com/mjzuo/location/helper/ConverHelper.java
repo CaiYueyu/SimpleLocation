@@ -5,9 +5,6 @@ import android.location.Location;
 
 import com.mjzuo.location.bean.Latlng;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 public class ConverHelper {
 
     public static Latlng loConverToLatlng(Location location) {

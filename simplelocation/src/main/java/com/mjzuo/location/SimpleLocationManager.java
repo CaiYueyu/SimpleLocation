@@ -1,9 +1,11 @@
-package com.mjzuo.location.manager;
+package com.mjzuo.location;
 
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -11,6 +13,7 @@ import androidx.annotation.Nullable;
 import com.mjzuo.location.bean.Latlng;
 import com.mjzuo.location.helper.ConverHelper;
 import com.mjzuo.location.helper.Helper;
+import com.mjzuo.location.util.LogUtil;
 
 /**
  *  获取当前定位的经纬度。
@@ -18,9 +21,7 @@ import com.mjzuo.location.helper.Helper;
  * @author mingjiezuo
  * @since 19/08/28
  */
-public class SimpleLocationManager implements IManager{
-
-    private static final String LOG_TAG = "tag_sl";
+public class SimpleLocationManager implements IManager {
 
     /** 当前系统定位manager*/
     private LocationManager lm;
@@ -61,7 +62,7 @@ public class SimpleLocationManager implements IManager{
     public void start(@Nullable ISiLoResponseListener listener) {
         if(listener != null)
             this.mListener = listener;
-        else
+        if(mListener == null)
             return;
         lm = (LocationManager) mContext.getApplicationContext()
                 .getSystemService(Context.LOCATION_SERVICE);
@@ -139,8 +140,19 @@ public class SimpleLocationManager implements IManager{
         }
 
         @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) {
-
+        public void onStatusChanged(String s, int state, Bundle bundle) {
+            if(mListener == null)
+                return;
+            if(Build.VERSION.SDK_INT > 28){
+                LogUtil.e("after api 29 always AVAILABLE");
+            }else{
+                switch (state){
+                    case LocationProvider.OUT_OF_SERVICE:
+                    case LocationProvider.TEMPORARILY_UNAVAILABLE:
+                        LogUtil.e("current provider out of condition");
+                        break;
+                }
+            }
         }
 
         @Override
@@ -160,7 +172,7 @@ public class SimpleLocationManager implements IManager{
          */
         private boolean isGpsFirst = false;
         /**
-         * 监听定位变化时间间隔，默认time s
+         * 监听定位变化最短时间间隔，默认time s
          */
         private int time = 2000;
         /**
