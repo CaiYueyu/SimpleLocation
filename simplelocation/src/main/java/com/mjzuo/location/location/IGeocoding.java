@@ -1,8 +1,8 @@
-package com.mjzuo.location;
+package com.mjzuo.location.location;
 
 import com.mjzuo.location.bean.Latlng;
 
-public interface IManager {
+public interface IGeocoding {
 
     /**
      * 开始获取位置

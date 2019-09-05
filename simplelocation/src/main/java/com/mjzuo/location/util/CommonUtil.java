@@ -22,4 +22,18 @@ public class CommonUtil {
         }
         return null;
     }
+
+    /**
+     * 将String转换成bytes
+     */
+    public static byte[] stringToBytes(String s) {
+        if (s != null) {
+            try {
+                return s.getBytes("UTF-8");
+            } catch (Exception var2) {
+                return new byte[0];
+            }
+        }
+        return new byte[0];
+    }
 }

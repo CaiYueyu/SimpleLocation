@@ -41,7 +41,7 @@ public class Helper {
     }
 
     /**
-     *  检查权限
+     *  检查定位权限
      */
     public static boolean checkPermission(Context mContext) {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -49,6 +49,16 @@ public class Helper {
                 && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.INTERNET)
+                == PackageManager.PERMISSION_GRANTED)
+            return true;
+        return false;
+    }
+
+    /**
+     *  检查手机权限
+     */
+    public static boolean checkPhonePermission(Context context) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE)
                 == PackageManager.PERMISSION_GRANTED)
             return true;
         return false;

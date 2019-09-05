@@ -8,12 +8,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.mjzuo.location.GeocodingManager;
 import com.mjzuo.location.bean.Latlng;
 import com.mjzuo.location.constant.Constant;
-import com.mjzuo.location.IManager;
-import com.mjzuo.location.location.IReGe;
+import com.mjzuo.location.location.GoogleGeocoding;
+import com.mjzuo.location.location.IGeocoding;
+import com.mjzuo.location.regelocation.IReGe;
 import com.mjzuo.location.ReverseGeocodingManager;
-import com.mjzuo.location.SimpleLocationManager;
 
 import java.util.List;
 
@@ -27,12 +28,13 @@ public class LocationTaskActivity extends AppCompatActivity implements EasyPermi
     String[] perms = {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.INTERNET
+            Manifest.permission.INTERNET,
+            Manifest.permission.READ_PHONE_STATE
     };
 
-    /** 获取经纬度*/
-    SimpleLocationManager siLoManager;
-    /** 反地理编码的manager*/
+    /** 定位获取经纬度，包括LocationManager、基站地位*/
+    GeocodingManager siLoManager;
+    /** 反地理编码的manager，包括google反地理、高德反地理、百度反地理、腾讯反地理*/
     ReverseGeocodingManager reGeManager;
 
     TextView tvSimpleLo;
@@ -54,7 +56,7 @@ public class LocationTaskActivity extends AppCompatActivity implements EasyPermi
         }
 
         ReverseGeocodingManager.ReGeOption reGeOption = new ReverseGeocodingManager.ReGeOption()
-                .setReGeType(Constant.BAIDU_API)// 百度api返地理编码
+                .setReGeType(Constant.GOOGLE_API)// 百度api返地理编码
                 .setSn(true)// sn 签名校验方式
                 .setIslog(true);// 打印log
         reGeManager = new ReverseGeocodingManager(this, reGeOption);
@@ -76,10 +78,13 @@ public class LocationTaskActivity extends AppCompatActivity implements EasyPermi
             }
         });
 
-        SimpleLocationManager.SiLoOption option = new SimpleLocationManager.SiLoOption()
-                .setGpsFirst(false);// network优先
-        siLoManager = new SimpleLocationManager(this, option);
-        siLoManager.start(new IManager.ISiLoResponseListener() {
+
+        GeocodingManager.GeoOption option = new GeocodingManager.GeoOption()
+                .setGeoType(Constant.LM_API) // 使用openCellid服务器的基站地位
+                .setOption(new GoogleGeocoding.SiLoOption()
+                        .setGpsFirst(true));// locationManager定位方式时，gps优先
+        siLoManager = new GeocodingManager(this, option);
+        siLoManager.start(new IGeocoding.ISiLoResponseListener() {
             @Override
             public void onSuccess(Latlng latlng) {
                 Log.e(LOG_TAG,"siLoManager onSuccess:" + latlng);

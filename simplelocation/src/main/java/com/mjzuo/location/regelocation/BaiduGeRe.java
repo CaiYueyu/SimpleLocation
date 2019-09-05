@@ -1,4 +1,4 @@
-package com.mjzuo.location.location;
+package com.mjzuo.location.regelocation;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -13,24 +13,20 @@ import com.mjzuo.location.net.NetUtil;
 import com.mjzuo.location.util.CommonUtil;
 import com.mjzuo.location.util.LogUtil;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-public class TencentGeRe implements IReGe {
+public class BaiduGeRe implements IReGe {
 
-    private String ak = "TF7BZ-6KYC4-2KBUK-D63XI-WJLBO-TKBGJ";
-    private String sk = "KUmq7ZNVgispZZoRcQxULuJK2KXxngs0";
-    private String host = "/ws/geocoder/v1/";
+    private String ak = "KHVTQZiP2UGuv7SkNbqYPKu4co7kbkS4";
+    private String sk = "cTqIacm4uvDnQWpWWCZGElhbIx4Nxv3q";
+    private String host = "/reverse_geocoding/v3/";
 
-    private LinkedHashMap<String, String> hashMap;
+    private LinkedHashMap<String, String> paramsMap;
     // 默认使用sn校验方式
     private boolean isSn = true;
 
@@ -40,9 +36,11 @@ public class TencentGeRe implements IReGe {
 
     @Override
     public void init(@Nullable Context context) {
-        hashMap = new LinkedHashMap<>();
+        paramsMap = new LinkedHashMap<>();
+        paramsMap.put("ak", ak);
+        paramsMap.put("coordtype", "wgs84ll");
     }
-    
+
     @Override
     public void setOptions(@Nullable ReverseGeocodingManager.ReGeOption options) {
         this.isSn = options.isSn();
@@ -54,25 +52,36 @@ public class TencentGeRe implements IReGe {
 
     @Override
     public void reGeToAddress(Latlng latlng) {
-        hashMap.put("location", latlng.getLatitude()+","+latlng.getLongitude());
-        hashMap.put("key", ak);
-        hashMap.put("get_poi", "1");
-        if(isSn){
-            LinkedHashMap<String, String> linkedHashMap = hashMapBySort(hashMap);
-            String sn = CommonUtil.MD5(Helper.toAppendUrlWithoutEncode(linkedHashMap, "", host) + sk);
-            hashMap.put("sig", sn);
+        paramsMap.put("location", latlng.getLatitude() + "," + latlng.getLongitude());
+        paramsMap.put("output", "json");
+        if(isSn) {
+            String paramsStr;
+            try {
+                paramsStr = toQueryString(paramsMap);
+            }catch (UnsupportedEncodingException e){
+                LogUtil.e("error:"+e.getMessage());
+                return;
+            }
+            String wholeStr = new String(host + "?" + paramsStr + sk);
+            try {
+                wholeStr = URLEncoder.encode(wholeStr, "UTF-8");
+            }catch (Exception e){
+                LogUtil.e("error:"+e.getMessage());
+                return;
+            }
+            String sn = CommonUtil.MD5(wholeStr);
+            paramsMap.put("sn", sn);
         }
-        task = new MyAsyncTask(Helper.toAppendUrl(hashMap, UrlConstant.TENCENT_URL, host));
+        task = new MyAsyncTask(Helper.toAppendUrl(paramsMap, UrlConstant.BAIDU_URL, host));
         task.execute();
     }
 
     @Override
     public void stop() {
-        if(hashMap != null)
-            hashMap.clear();
-        hashMap = null;
+        if(paramsMap != null)
+            paramsMap.clear();
+        paramsMap = null;
         task = null;
-        mListener = null;
     }
 
     @Override
@@ -80,7 +89,7 @@ public class TencentGeRe implements IReGe {
         mListener = listener;
     }
 
-    class MyAsyncTask extends AsyncTask<Void, Void, String> {
+    class MyAsyncTask extends AsyncTask<Void, Void, String>{
 
         String mUrl;
         public MyAsyncTask(String url) {
@@ -100,19 +109,24 @@ public class TencentGeRe implements IReGe {
         }
     }
 
-    private LinkedHashMap<String, String> hashMapBySort(HashMap<String, String> hashMap) {
-        List<Map.Entry<String,String>> list = new ArrayList<>(hashMap.entrySet());
-        Collections.sort(list,new Comparator<Map.Entry<String, String>>() {
-            // 升序排序
-            public int compare(Map.Entry<String, String> o1, Map.Entry<String, String> o2) {
-                return o1.getKey().compareTo(o2.getKey());
-            }
-        });
-        LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<>();
-        for(Map.Entry<String,String> map : list){
-            linkedHashMap.put(map.getKey(), map.getValue());
+    /**
+     *  对Map内所有value作utf8编码，拼接返回结果
+     * @param data
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    private String toQueryString(Map<?, ?> data)
+            throws UnsupportedEncodingException {
+        StringBuffer queryString = new StringBuffer();
+        for (Map.Entry<?, ?> pair : data.entrySet()) {
+            queryString.append(pair.getKey() + "=");
+            queryString.append(URLEncoder.encode((String) pair.getValue(),
+                    "UTF-8") + "&");
         }
-        return linkedHashMap;
+        if (queryString.length() > 0) {
+            queryString.deleteCharAt(queryString.length() - 1);
+        }
+        return queryString.toString();
     }
 
     /**
@@ -144,25 +158,17 @@ public class TencentGeRe implements IReGe {
                 if(jsonObject.has("result")){
                     JSONObject obj;
                     JSONObject objAddress;
-                    JSONObject objAdInfo;
-                    JSONArray objArray;
                     try{
                         obj = jsonObject.getJSONObject("result");
-                        objAddress = obj.getJSONObject("address_component");
+                        objAddress = obj.getJSONObject("addressComponent");
                         Latlng latlng = new Latlng();
-                        latlng.setCountry(objAddress.getString("nation"));
+                        latlng.setCountry(objAddress.getString("country"));
+                        latlng.setCountryCode(objAddress.getString("country_code"));
                         latlng.setCity(objAddress.getString("city"));
                         latlng.setSublocality(objAddress.getString("district"));
+                        latlng.setCityCode(obj.getInt("cityCode")+"");
                         latlng.setAddress(objAddress.getString("street"));
-
-                        objAdInfo = obj.getJSONObject("ad_info");
-                        latlng.setCityCode(objAdInfo.getString("city_code"));
-
-                        objArray = obj.getJSONArray("pois");
-                        if(objArray != null && objArray.length() != 0){
-                            String name = objArray.getJSONObject(0).getString("title");
-                            latlng.setName(name);
-                        }
+                        latlng.setName(obj.getString("business"));
                         mListener.onSuccess(state, latlng);
                     }catch (Exception e){
                         LogUtil.e("error:"+e.getMessage());

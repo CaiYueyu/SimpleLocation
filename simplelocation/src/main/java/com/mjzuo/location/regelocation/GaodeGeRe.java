@@ -1,4 +1,4 @@
-package com.mjzuo.location.location;
+package com.mjzuo.location.regelocation;
 
 import android.content.Context;
 import android.os.AsyncTask;

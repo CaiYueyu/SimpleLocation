@@ -1,4 +1,4 @@
-package com.mjzuo.location;
+package com.mjzuo.location.location;
 
 import android.content.Context;
 import android.location.Location;
@@ -16,12 +16,12 @@ import com.mjzuo.location.helper.Helper;
 import com.mjzuo.location.util.LogUtil;
 
 /**
- *  获取当前定位的经纬度。
+ *  LocationManager获取经纬度。
  *
  * @author mingjiezuo
  * @since 19/08/28
  */
-public class SimpleLocationManager implements IManager {
+public class GoogleGeocoding implements IGeocoding {
 
     /** 当前系统定位manager*/
     private LocationManager lm;
@@ -47,15 +47,13 @@ public class SimpleLocationManager implements IManager {
 
     private Context mContext;
 
-    public SimpleLocationManager(Context context) {
+    public GoogleGeocoding(Context context) {
         this.mContext = context;
         this.mChangeListener = new MyLocationListener();
     }
 
-    public SimpleLocationManager(Context context, SiLoOption siLoOption) {
-        this.mContext = context;
+    public void setSimpleLocationOption(@Nullable SiLoOption siLoOption) {
         this.mSiLoOption = siLoOption;
-        this.mChangeListener = new MyLocationListener();
     }
 
     @Override

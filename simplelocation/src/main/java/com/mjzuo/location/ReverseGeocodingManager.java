@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 import com.mjzuo.location.bean.Latlng;
 import com.mjzuo.location.constant.Constant;
 import com.mjzuo.location.helper.GeReFactory;
-import com.mjzuo.location.location.IReGe;
+import com.mjzuo.location.regelocation.IReGe;
 import com.mjzuo.location.util.LogUtil;
 
 /**
