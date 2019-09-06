@@ -53,16 +53,4 @@
         });
 ```
 
-如果大家手机遇到了问题，可以将手机型号、系统、报错信息提出来，大家一起试着解决。
-
-手机型号  |  android版本  |  自定义系统  |  兼容情况
----  |  ---  |  ---  |  ---
-华为JSN-AL00a  |  android9  |  EMUI 9.1.0  | Y
-小米M8  |  android9|  MIUI 10.3.5  |  geocoder反编码N,other Y
-三星Galaxy S8  |  android9  |  null  |  Y
-魅族M6 note  |  android7.1.2  |  flame 7.9.5.28  | Y
-vivoZ5  |  android9  |  null  | Y
-诺基亚6  |  android 9  | null  |  Y
-酷派  |  android4.4.4  |  null  |  LocationManager N, geocder N, other Y
-
 
