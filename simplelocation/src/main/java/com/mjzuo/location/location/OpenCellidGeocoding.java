@@ -47,6 +47,10 @@ public class OpenCellidGeocoding implements IGeocoding {
             LogUtil.e("open cellid grocoding listener nuol");
 
         String operator = telephonyManager.getNetworkOperator();
+        if(operator == null || operator.isEmpty()){
+            mListener.onFail("phone manager getNetworkOperator null");
+            return;
+        }
         int mcc = Integer.parseInt(operator.substring(0, 3));
         int mnc = Integer.parseInt(operator.substring(3));
         CellLocation celo = null;
