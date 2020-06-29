@@ -56,7 +56,7 @@ public class LocationTaskActivity extends AppCompatActivity implements EasyPermi
         }
 
         ReverseGeocodingManager.ReGeOption reGeOption = new ReverseGeocodingManager.ReGeOption()
-                .setReGeType(Constant.GOOGLE_API)// 百度api返地理编码
+                .setReGeType(Constant.TENCENT_API)// 腾讯api返地理编码
                 .setSn(true)// sn 签名校验方式
                 .setIslog(true);// 打印log
         reGeManager = new ReverseGeocodingManager(this, reGeOption);
@@ -80,9 +80,9 @@ public class LocationTaskActivity extends AppCompatActivity implements EasyPermi
 
 
         GeocodingManager.GeoOption option = new GeocodingManager.GeoOption()
-                .setGeoType(Constant.LM_API) // 使用openCellid服务器的基站地位
+                .setGeoType(Constant.BS_OPENCELLID_API) // 使用openCellid服务器的基站地位
                 .setOption(new GoogleGeocoding.SiLoOption()
-                        .setGpsFirst(true));// locationManager定位方式时，gps优先
+                        .setGpsFirst(false));// locationManager定位方式时，gps优先
         siLoManager = new GeocodingManager(this, option);
         siLoManager.start(new IGeocoding.ISiLoResponseListener() {
             @Override
